@@ -29,13 +29,14 @@ export const loginUser = asyncHandler(async function (req, res) {
   if (!(await user.isPasswordMatching(password)))
     throw new ApiError(401, {}, "Unauthorized");
   const token = User.generateJwtToken({ id: user._id });
+  const isProduction = process.env.ENVIRONMENT !== "development";
 
   return res
     .cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 1 * 24 * 60 * 60 * 1000,
-      secure: process.env.ENVIRONMENT !== "development",
+      secure: isProduction,
     })
     .json(new ApiResponse(200, { user }, "User logged in successfully"));
 });
