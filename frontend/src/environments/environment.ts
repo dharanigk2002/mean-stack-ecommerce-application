@@ -1,4 +1,4 @@
 export const environment = {
-  apiUrl: 'http://api.com',
-  clientUrl: '',
+  apiUrl: 'https://mean-stack-ecommerce-application.onrender.com',
+  clientUrl: 'https://ng-ecommerce-app.netlify.app',
 };
