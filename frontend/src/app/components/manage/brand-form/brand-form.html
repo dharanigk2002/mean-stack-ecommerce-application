@@ -1,0 +1,16 @@
+<div class="w-full max-w-200 mx-auto h-screen">
+  <h1 class="text-4xl my-8">{{ id() ? 'Update Brand' : 'Add New Brand' }}</h1>
+  <form class="mx-auto" (ngSubmit)="onSubmit()" autocomplete="off">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-full">
+        <mat-form-field class="w-full">
+          <mat-label>Name</mat-label>
+          <input type="text" matInput name="category-name" [(ngModel)]="name" />
+        </mat-form-field>
+      </div>
+      <button mat-raised-button color="primary" [disabled]="invalid()">
+        {{ id() ? 'Update' : 'Add' }} Brand
+      </button>
+    </div>
+  </form>
+</div>

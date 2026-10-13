@@ -1,0 +1,196 @@
+<div class="min-h-screen bg-gray-50 px-4 py-8 sm:py-12">
+  <div class="mx-auto max-w-5xl">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">My Orders</h1>
+      <p class="mt-2 text-sm text-gray-500">Track and manage your purchases.</p>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center">
+        <p class="text-gray-500">Loading your orders...</p>
+      </div>
+    }
+
+    <!-- Error -->
+    @else if (error()) {
+      <div class="rounded-2xl border border-red-200 bg-white p-8 text-center">
+        <p class="text-red-600">{{ error() }}</p>
+      </div>
+    }
+
+    <!-- Empty orders -->
+    @else if (orders().length === 0) {
+      <div class="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center shadow-sm">
+        <div
+          class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-orange-500"
+        >
+          <svg
+            class="h-8 w-8"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+          >
+            <path d="M6 7h12l1 13H5L6 7Z" />
+            <path d="M9 7a3 3 0 0 1 6 0" />
+          </svg>
+        </div>
+
+        <h2 class="text-xl font-semibold text-gray-900">No orders yet</h2>
+        <p class="mt-2 text-sm text-gray-500">
+          Your purchases will appear here once you place an order.
+        </p>
+
+        <a
+          routerLink="/products"
+          class="mt-6 inline-flex cursor-pointer rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600"
+        >
+          Start shopping
+        </a>
+      </div>
+    }
+
+    <!-- Orders list -->
+    @else {
+      <div class="mb-5 text-sm text-gray-500">
+        {{ orders().length }} {{ orders().length === 1 ? 'order' : 'orders' }}
+      </div>
+
+      <div class="space-y-6">
+        @for (order of orders(); track order.id) {
+          <article
+            class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+            (click)="onOpen($index)"
+          >
+            <!-- Order header -->
+            <div
+              class="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/70 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7"
+            >
+              <div class="grid grid-cols-2 gap-x-8 gap-y-3 sm:flex sm:gap-10">
+                <div>
+                  <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Order ID</p>
+                  <p class="mt-1 font-semibold text-gray-900">#{{ order.id }}</p>
+                </div>
+
+                <div>
+                  <p class="text-xs font-medium uppercase tracking-wide text-gray-500">
+                    Order date
+                  </p>
+                  <p class="mt-1 font-medium text-gray-900">
+                    {{ order.createdAt | date: 'dd MMM yyyy' }}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Payment</p>
+                  <p class="mt-1 font-medium text-gray-900">
+                    {{ order.paymentType === 'cash' ? 'Cash on Delivery' : 'Card' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Status badge -->
+              <div class="flex items-center space-x-3">
+                <span
+                  class="flex w-fit items-center rounded-full px-3 py-1 text-sm font-semibold capitalize"
+                  [class.bg-yellow-100]="order.status === 'pending'"
+                  [class.text-yellow-800]="order.status === 'pending'"
+                  [class.bg-blue-100]="order.status === 'confirmed' || order.status === 'shipped'"
+                  [class.text-blue-800]="order.status === 'confirmed' || order.status === 'shipped'"
+                  [class.bg-green-100]="order.status === 'delivered'"
+                  [class.text-green-800]="order.status === 'delivered'"
+                  [class.bg-red-100]="order.status === 'cancelled'"
+                  [class.text-red-800]="order.status === 'cancelled'"
+                >
+                  {{ order.status | titlecase }}
+                </span>
+                <div
+                  class="size-6 flex items-center justify-center transition hover:bg-gray-300/30 rounded-full cursor-pointer"
+                >
+                  <span
+                    class="block size-2 border-2 border-t-0 border-l-0 rotate-45 transition-transform"
+                    [class.rotate-225]="isOpened().at($index)"
+                  ></span>
+                </div>
+              </div>
+            </div>
+            @if (isOpened().at($index)) {
+              <div class="space-y-6 p-5 sm:p-7">
+                <!-- Items -->
+                <section>
+                  <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                    Items ordered
+                  </h2>
+
+                  <div class="divide-y divide-gray-100">
+                    @for (item of order.items; track item.productId.id) {
+                      <div class="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">
+                        <div class="min-w-0 flex-1">
+                          <p class="font-semibold text-gray-900">
+                            {{ item.name }}
+                          </p>
+                          <p class="mt-1 text-sm text-gray-500">
+                            {{ item.price | currency: 'INR' : 'symbol' : '1.2-2' }}
+                            &times; {{ item.quantity }}
+                          </p>
+                        </div>
+
+                        <p class="shrink-0 font-semibold text-gray-900">
+                          {{ item.price * item.quantity | currency: 'INR' : 'symbol' : '1.2-2' }}
+                        </p>
+                      </div>
+                    }
+                  </div>
+                </section>
+
+                <!-- Shipping address -->
+                <section class="rounded-xl bg-gray-50 p-4 sm:p-5">
+                  <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                    Delivery address
+                  </h2>
+
+                  <p class="font-semibold text-gray-900">
+                    {{ order.shippingAddress.fullName }}
+                  </p>
+
+                  <p class="mt-1 text-sm leading-6 text-gray-600">
+                    {{ order.shippingAddress.addressLine1 }}<br />
+                    @if (order.shippingAddress.addressLine2) {
+                      {{ order.shippingAddress.addressLine2 }}<br />
+                    }
+                    {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} -
+                    {{ order.shippingAddress.postalCode }}<br />
+                    {{ order.shippingAddress.country }}
+                  </p>
+
+                  <p class="mt-2 text-sm text-gray-600">
+                    {{ order.shippingAddress.phone }}
+                    <span class="mx-1">·</span>
+                    {{ order.shippingAddress.email }}
+                  </p>
+                </section>
+
+                <!-- Total -->
+                <div class="flex items-center justify-between border-t border-gray-100 pt-5">
+                  <div>
+                    <p class="text-sm text-gray-500">Order total</p>
+                    <p class="mt-1 text-xs text-gray-400">
+                      {{ order.items.length }}
+                      {{ order.items.length === 1 ? 'line item' : 'line items' }}
+                    </p>
+                  </div>
+
+                  <p class="text-2xl font-bold text-orange-600">
+                    {{ order.totalAmount | currency: 'INR' : 'symbol' : '1.2-2' }}
+                  </p>
+                </div>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </div>
+</div>

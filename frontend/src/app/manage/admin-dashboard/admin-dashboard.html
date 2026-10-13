@@ -1,0 +1,18 @@
+<app-header #header />
+<div class="flex justify-center my-5">
+  <div class="flex flex-row flex-wrap items-center gap-4">
+    @for (link of routeLinks; track $index) {
+      <a
+        [routerLink]="link.href"
+        class="text-gray-600 border-orange-600 px-5 py-3 cursor-pointer text-sm font-semibold transition"
+        routerLinkActive="border-b-2"
+      >
+        {{ link.text }}
+      </a>
+    }
+  </div>
+</div>
+
+<main class="min-h-screen">
+  <router-outlet />
+</main>

@@ -1,0 +1,22 @@
+@if (images().length > 1) {
+  <ul class="absolute bottom-2 z-10 left-0 right-0 px-4 flex justify-center items-center gap-2">
+    @for (img of images(); track $index) {
+      <li
+        class="size-2 bg-gray-300 rounded-full cursor-pointer transition"
+        [class.bg-orange-500]="activeImage() === $index"
+        [class.border]="activeImage() === $index"
+        (click)="changeImage($event, $index)"
+      ></li>
+    }
+  </ul>
+}
+<div class="h-full w-full overflow-hidden flex items-center">
+  @for (img of images(); track $index) {
+    <img
+      [src]="img"
+      [alt]="alt()"
+      class="w-full h-full shrink-0 object-cover object-top transition duration-500"
+      [style.transform]="`translateX(-${activeImage() * 100}%)`"
+    />
+  }
+</div>

@@ -1,0 +1,58 @@
+<div class="grid grid-cols-[480px_1fr] m-4 text-lg">
+  <section class="w-full space-y-4">
+    <h1 class="font-semibold">Filter</h1>
+    <mat-form-field>
+      <mat-label>Brands</mat-label>
+      <mat-select
+        [value]="brandId()"
+        (selectionChange)="handleChange($event, 'brand')"
+        name="brand"
+      >
+        @for (brand of brands(); track brand.id) {
+          <mat-option [value]="brand.id">{{ brand.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </section>
+  <section class="font-semibold space-y-4">
+    <h1>Products</h1>
+    <mat-form-field>
+      <mat-label>Sort By</mat-label>
+      <mat-select
+        [value]="sortOrder()"
+        (selectionChange)="handleChange($event, 'sort')"
+        name="sort"
+      >
+        <mat-option value="1">Price: Low to high</mat-option>
+        <mat-option value="-1">Price: High to low</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="flex gap-4 items-center flex-wrap">
+      @for (product of productDetails()?.products; track $index) {
+        <app-product-card [product]="product" class="max-w-sm w-full" />
+      } @empty {
+        <p class="font-medium text-md text-center">No products found</p>
+      }
+    </div>
+    @if ((productDetails().pagination?.totalPages ?? 1) > 1) {
+      <div class="flex space-x-4">
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!productDetails().pagination?.hasPreviousPage"
+          (click)="pageChange(currentPage() - 1)"
+        >
+          Prev
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!productDetails().pagination?.hasNextPage"
+          (click)="pageChange(currentPage() + 1)"
+        >
+          Next
+        </button>
+      </div>
+    }
+  </section>
+</div>

@@ -1,0 +1,190 @@
+<div class="px-40 mt-10">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Order details</h1>
+    <p class="mt-2 text-sm text-gray-500">Track and manage orders.</p>
+  </div>
+
+  <!-- Empty orders -->
+  @if (isOpened().length === 0) {
+    <div class="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center shadow-sm">
+      <div
+        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-orange-500"
+      >
+        <svg
+          class="h-8 w-8"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+        >
+          <path d="M6 7h12l1 13H5L6 7Z" />
+          <path d="M9 7a3 3 0 0 1 6 0" />
+        </svg>
+      </div>
+
+      <h2 class="text-xl font-semibold text-gray-900">No orders yet</h2>
+      <p class="mt-2 text-sm text-gray-500">
+        Your purchases will appear here once you place an order.
+      </p>
+
+      <a
+        routerLink="/products"
+        class="mt-6 inline-flex cursor-pointer rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600"
+      >
+        Start shopping
+      </a>
+    </div>
+  }
+
+  <!-- Orders list -->
+  @else {
+    <div class="mb-5 text-sm text-gray-500">
+      {{ isOpened().length }} {{ isOpened().length === 1 ? 'order' : 'orders' }}
+    </div>
+
+    <div class="space-y-6">
+      @for (order of adminOrders().orders; track order.id) {
+        <article class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <!-- Order header -->
+          <div
+            class="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/70 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7"
+          >
+            <div class="grid grid-cols-2 gap-x-8 gap-y-3 sm:flex sm:gap-10">
+              <div>
+                <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Order ID</p>
+                <p class="mt-1 font-semibold text-gray-900">#{{ order.id }}</p>
+              </div>
+
+              <div>
+                <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Order date</p>
+                <p class="mt-1 font-medium text-gray-900">
+                  {{ order.createdAt | date: 'dd MMM yyyy' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Payment</p>
+                <p class="mt-1 font-medium text-gray-900">
+                  {{ order.paymentType === 'cash' ? 'Cash on Delivery' : 'Card' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Status badge -->
+            <div class="flex items-center space-x-3">
+              <select
+                name="status"
+                class="w-full min-w-36 cursor-pointer appearance-none rounded-lg border border-gray-200 bg-white px-4 py-2.5 pr-10 text-sm font-semibold text-gray-700 shadow-sm outline-none transition-all duration-200 hover:border-orange-300 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                [ngModel]="order.status | lowercase"
+                (ngModelChange)="handleStatus($event, order.id)"
+              >
+                @for (status of statusOptions; track $index) {
+                  <option [value]="status">
+                    {{ status | titlecase }}
+                  </option>
+                }
+              </select>
+              <div
+                (click)="onOpen($index)"
+                class="size-6 flex items-center justify-center transition hover:bg-gray-300/30 rounded-full cursor-pointer"
+              >
+                <span
+                  class="block size-2 border-2 border-t-0 border-l-0 rotate-45 transition-transform"
+                  [class.rotate-225]="isOpened().at($index)"
+                ></span>
+              </div>
+            </div>
+          </div>
+          @if (isOpened().at($index)) {
+            <div class="space-y-6 p-5 sm:p-7">
+              <!-- Items -->
+              <section>
+                <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                  Items ordered
+                </h2>
+
+                <div class="divide-y divide-gray-100">
+                  @for (item of order.items; track item.productId.id) {
+                    <div class="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">
+                      <div class="min-w-0 flex-1">
+                        <p class="font-semibold text-gray-900">
+                          {{ item.name }}
+                        </p>
+                        <p class="mt-1 text-sm text-gray-500">
+                          {{ item.price | currency: 'INR' : 'symbol' : '1.2-2' }}
+                          &times; {{ item.quantity }}
+                        </p>
+                      </div>
+
+                      <p class="shrink-0 font-semibold text-gray-900">
+                        {{ item.price * item.quantity | currency: 'INR' : 'symbol' : '1.2-2' }}
+                      </p>
+                    </div>
+                  }
+                </div>
+              </section>
+
+              <!-- Shipping address -->
+              <section class="rounded-xl bg-gray-50 p-4 sm:p-5">
+                <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                  Delivery address
+                </h2>
+
+                <p class="font-semibold text-gray-900">
+                  {{ order.shippingAddress.fullName }}
+                </p>
+
+                <p class="mt-1 text-sm leading-6 text-gray-600">
+                  {{ order.shippingAddress.addressLine1 }}<br />
+                  @if (order.shippingAddress.addressLine2) {
+                    {{ order.shippingAddress.addressLine2 }}<br />
+                  }
+                  {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} -
+                  {{ order.shippingAddress.postalCode }}<br />
+                  {{ order.shippingAddress.country }}
+                </p>
+
+                <p class="mt-2 text-sm text-gray-600">
+                  {{ order.shippingAddress.phone }}
+                  <span class="mx-1">·</span>
+                  {{ order.shippingAddress.email }}
+                </p>
+              </section>
+
+              <!-- Total -->
+              <div class="flex items-center justify-between border-t border-gray-100 pt-5">
+                <div>
+                  <p class="text-sm text-gray-500">Order total</p>
+                  <p class="mt-1 text-xs text-gray-400">
+                    {{ order.items.length }}
+                    {{ order.items.length === 1 ? 'line item' : 'line items' }}
+                  </p>
+                </div>
+
+                <p class="text-2xl font-bold text-orange-600">
+                  {{ order.totalAmount | currency: 'INR' : 'symbol' : '1.2-2' }}
+                </p>
+              </div>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+
+  @if (adminOrders().pagination.totalPages > 1) {
+    <div class="flex gap-4 my-4">
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!adminOrders().pagination.hasPreviousPage"
+      >
+        Prev
+      </button>
+      <button mat-raised-button color="primary" [disabled]="!adminOrders().pagination.hasNextPage">
+        Next
+      </button>
+    </div>
+  }
+</div>

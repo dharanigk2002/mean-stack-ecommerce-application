@@ -1,0 +1,86 @@
+<div class="w-full max-w-200 mx-auto mb-5">
+  <h1 class="text-4xl my-8">{{ id() ? 'Update ' : 'Add New ' }}Product</h1>
+
+  <form class="mx-auto" (ngSubmit)="onSubmit()" autocomplete="off" [formGroup]="form">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-full">
+        <mat-form-field class="w-full">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="categoryId" [value]="form.value.categoryId">
+            @for (category of categories(); track $index) {
+              <mat-option [value]="category.id">{{ category.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="w-full">
+          <mat-label>Brand</mat-label>
+          <mat-select formControlName="brandId" [value]="form.value.brandId">
+            @for (brand of brands(); track $index) {
+              <mat-option [value]="brand.id">{{ brand.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="w-full">
+          <mat-label>Name</mat-label>
+          <input type="text" matInput name="product-name" formControlName="name" />
+        </mat-form-field>
+        <mat-form-field class="w-full">
+          <mat-label>Short description</mat-label>
+          <input type="text" matInput name="product-name" formControlName="shortDescription" />
+        </mat-form-field>
+        <mat-form-field class="w-full">
+          <mat-label>Description</mat-label>
+          <textarea
+            type="text"
+            matInput
+            name="product-name"
+            formControlName="description"
+          ></textarea>
+        </mat-form-field>
+        <mat-form-field class="w-full">
+          <mat-label>Price</mat-label>
+          <input type="text" matInput name="product-name" formControlName="price" />
+        </mat-form-field>
+        <mat-form-field class="w-full">
+          <mat-label>Discount</mat-label>
+          <input type="text" matInput name="product-name" formControlName="discount" />
+        </mat-form-field>
+
+        <section class="example-section">
+          <mat-checkbox class="example-margin" formControlName="isFeatured">Featured</mat-checkbox>
+          <mat-checkbox class="example-margin" formControlName="isNewProduct">New</mat-checkbox>
+        </section>
+        <div class="w-full flex flex-col" formArrayName="images">
+          <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl">Images</h1>
+            <div class="space-x-4">
+              <button type="button" mat-raised-button color="primary" (click)="addImage()">
+                Add Image
+              </button>
+              <button type="button" mat-raised-button color="primary" (click)="removeImage()">
+                Remove Image
+              </button>
+            </div>
+          </div>
+          @for (image of images.controls; track $index) {
+            <mat-form-field class="w-full">
+              <mat-label>Image {{ $index + 1 }}</mat-label>
+              <input type="text" matInput name="product-name" [formControlName]="$index" />
+              @if (
+                image.touched &&
+                image.dirty &&
+                image.invalid &&
+                image.errors?.['isValidImage'] === false
+              ) {
+                <p class="text-red-700">Please enter a valid image url</p>
+              }
+            </mat-form-field>
+          }
+        </div>
+      </div>
+      <button mat-raised-button color="primary" [disabled]="form.invalid">
+        {{ id() ? 'Update' : 'Add' }} Product
+      </button>
+    </div>
+  </form>
+</div>

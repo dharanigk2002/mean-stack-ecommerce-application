@@ -1,0 +1,134 @@
+<div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-10">
+  <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-900">Create an account</h1>
+
+      <p class="mt-2 text-sm text-gray-500">Sign up to get started with ShopEase</p>
+    </div>
+
+    @if (serverError()) {
+      <div
+        role="alert"
+        class="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+      >
+        {{ serverError() }}
+      </div>
+    }
+
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <!-- Name -->
+      <div>
+        <label for="name" class="mb-2 block text-sm font-medium text-gray-700"> Full name </label>
+
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter your name"
+          class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+          [class.border-red-500]="
+            signupForm.controls['name'].invalid &&
+            signupForm.controls['name'].touched &&
+            signupForm.controls['name'].dirty
+          "
+        />
+
+        @if (signupForm.controls['name'].invalid && signupForm.controls['name'].touched) {
+          <p class="mt-1 text-xs text-red-500">
+            @if (signupForm.controls['name'].hasError('required')) {
+              Name is required.
+            } @else if (signupForm.controls['name'].hasError('minlength')) {
+              Name must be at least 2 characters.
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Email -->
+      <div>
+        <label for="email" class="mb-2 block text-sm font-medium text-gray-700">
+          Email address
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+          [class.border-red-500]="
+            signupForm.controls['email'].invalid &&
+            signupForm.controls['email'].touched &&
+            signupForm.controls['email'].dirty
+          "
+        />
+
+        @if (signupForm.controls['email'].invalid && signupForm.controls['email'].touched) {
+          <p class="mt-1 text-xs text-red-500">
+            @if (signupForm.controls['email'].hasError('required')) {
+              Email is required.
+            } @else if (signupForm.controls['email'].hasError('email')) {
+              Please enter a valid email address.
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label for="password" class="mb-2 block text-sm font-medium text-gray-700">
+          Password
+        </label>
+
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+          [class.border-red-500]="
+            signupForm.controls['password'].invalid &&
+            signupForm.controls['password'].touched &&
+            signupForm.controls['password'].dirty
+          "
+        />
+
+        @if (signupForm.controls['password'].invalid && signupForm.controls['password'].touched) {
+          <p class="mt-1 text-xs text-red-500">
+            @if (signupForm.controls['password'].hasError('required')) {
+              Password is required.
+            } @else if (signupForm.controls['password'].hasError('minlength')) {
+              Password must be at least 8 characters.
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        [disabled]="signupForm.invalid || isSubmitting()"
+        class="w-full rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        @if (isSubmitting()) {
+          Creating account...
+        } @else {
+          Create account
+        }
+      </button>
+    </form>
+
+    <!-- Login -->
+    <p class="mt-6 text-center text-sm text-gray-500">
+      Already have an account?
+      <a
+        type="button"
+        routerLink="/login"
+        class="cursor-pointer font-semibold text-orange-500 hover:text-orange-600"
+      >
+        Log in
+      </a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,206 @@
+<main class="min-h-screen bg-stone-50 px-4 py-10 text-black sm:px-6 lg:py-16">
+  <div class="mx-auto max-w-6xl">
+    <!-- Heading -->
+    <header class="mb-10 text-center">
+      <p class="mb-3 text-sm font-bold uppercase tracking-[0.25em] text-orange-600">
+        Your collection
+      </p>
+
+      <h1 class="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+        Your Shopping <span class="text-orange-500">Cart</span>
+      </h1>
+
+      <p class="mt-3 text-sm text-stone-500 sm:text-base">
+        Review your items and get ready for checkout.
+      </p>
+
+      <div class="mx-auto mt-6 h-1 w-16 rounded-full bg-orange-500"></div>
+    </header>
+
+    @if (cartItems().length > 0) {
+      <div class="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+        <!-- Cart items -->
+        <section class="space-y-4 lg:col-span-2">
+          <div class="mb-5 flex items-center justify-between">
+            <h2 class="text-lg font-bold">Cart Items</h2>
+            <span
+              class="rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700"
+            >
+              {{ totalItems() }} items
+            </span>
+          </div>
+
+          @for (item of cartItems(); track item.id) {
+            <article
+              class="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition hover:border-orange-200 sm:p-5"
+            >
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <!-- Product image -->
+                <div
+                  class="flex h-32 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-stone-100 sm:h-28 sm:w-28"
+                >
+                  <img
+                    [src]="item.productId.images[0] || 'assets/images/product-placeholder.png'"
+                    [alt]="item.productId.name"
+                    class="h-full w-full object-contain p-2"
+                  />
+                </div>
+
+                <!-- Product details -->
+                <div class="min-w-0 flex-1">
+                  <h3 class="text-base font-bold sm:text-lg">
+                    {{ item.productId.name }}
+                  </h3>
+
+                  <p class="mt-1 line-clamp-2 text-sm text-stone-500">
+                    {{ item.productId.shortDescription }}
+                  </p>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <span class="text-lg font-extrabold text-orange-600">
+                      {{ getItemPrice(item) | currency: 'INR' : 'symbol' : '1.2-2' }}
+                    </span>
+
+                    @if (item.productId.discount > 0) {
+                      <span class="text-sm text-stone-400 line-through">
+                        {{ item.productId.price | currency: 'INR' : 'symbol' : '1.2-2' }}
+                      </span>
+
+                      <span
+                        class="rounded-md bg-orange-50 px-2 py-1 text-xs font-bold text-orange-700"
+                      >
+                        {{ item.productId.discount }}% OFF
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Quantity controls -->
+                <div class="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
+                  <div class="flex items-center rounded-lg border border-stone-200">
+                    <button
+                      type="button"
+                      (click)="decreaseQuantity(item)"
+                      [attr.aria-label]="'Decrease quantity of ' + item.productId.name"
+                      class="flex h-9 w-9 items-center justify-center rounded-l-lg text-lg font-bold transition hover:bg-orange-50 hover:text-orange-600"
+                    >
+                      −
+                    </button>
+
+                    <span class="min-w-10 text-center text-sm font-bold">
+                      {{ item.quantity }}
+                    </span>
+
+                    <button
+                      type="button"
+                      (click)="increaseQuantity(item)"
+                      [attr.aria-label]="'Increase quantity of ' + item.productId.name"
+                      class="flex h-9 w-9 items-center justify-center rounded-r-lg text-lg font-bold transition hover:bg-orange-50 hover:text-orange-600"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <p class="text-sm font-bold text-black">
+                    {{ getItemPrice(item) * item.quantity | currency: 'INR' : 'symbol' : '1.2-2' }}
+                  </p>
+
+                  <button
+                    type="button"
+                    (click)="removeItem(item)"
+                    class="text-sm cursor-pointer font-medium text-stone-400 transition hover:text-red-600"
+                  >
+                    Remove item
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </section>
+
+        <!-- Order summary -->
+        <aside
+          class="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm lg:sticky lg:top-6"
+        >
+          <h2 class="text-xl font-extrabold">Order Summary</h2>
+
+          <div class="mt-6 space-y-4 text-sm">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-stone-500">Subtotal ({{ totalItems() }} items)</span>
+              <span class="font-semibold">
+                {{ subtotal() | currency: 'INR' : 'symbol' : '1.2-2' }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-stone-500">Shipping</span>
+              <span class="font-semibold text-green-600">FREE</span>
+            </div>
+
+            <div class="border-t border-dashed border-stone-200 pt-4">
+              <div class="flex items-center justify-between gap-4">
+                <span class="font-bold">Total</span>
+                <span class="text-2xl font-black text-orange-600">
+                  {{ subtotal() | currency: 'INR' : 'symbol' : '1.2-2' }}
+                </span>
+              </div>
+              <p class="mt-2 text-xs text-stone-400">
+                Taxes and shipping are subject to checkout details.
+              </p>
+            </div>
+          </div>
+
+          <a
+            type="button"
+            routerLink="/checkout"
+            class="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3.5 font-bold text-white shadow-md shadow-orange-500/20 transition hover:bg-orange-600 active:scale-[0.98]"
+          >
+            Proceed to Checkout
+            <span aria-hidden="true">→</span>
+          </a>
+
+          <p class="mt-4 text-center text-xs text-stone-400">Secure checkout · Easy returns</p>
+        </aside>
+      </div>
+    } @else {
+      <!-- Empty cart -->
+      <section
+        class="mx-auto max-w-lg rounded-2xl border border-stone-200 bg-white px-6 py-14 text-center shadow-sm"
+      >
+        <div
+          class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 text-orange-600"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            class="h-10 w-10"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3 3h2l2.4 11.4a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L21 8H6"
+            />
+            <circle cx="10" cy="20" r="1" />
+            <circle cx="18" cy="20" r="1" />
+          </svg>
+        </div>
+
+        <h2 class="mt-6 text-2xl font-extrabold">Your cart is empty</h2>
+        <p class="mt-2 text-sm leading-6 text-stone-500">
+          Looks like you haven't added anything yet. Find something you'll love!
+        </p>
+
+        <a
+          routerLink="/products"
+          class="mt-7 inline-flex cursor-pointer items-center justify-center rounded-xl bg-black px-6 py-3 font-bold text-white transition hover:bg-orange-500"
+        >
+          Explore Products
+        </a>
+      </section>
+    }
+  </div>
+</main>
